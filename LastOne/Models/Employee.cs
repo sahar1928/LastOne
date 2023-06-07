@@ -13,7 +13,7 @@ namespace LastOne.Models
         public string Location { get; set; }
         public bool Availability { get; set; }
         public string Status { get; set; }
-        public string Score { get; set; }
+        public int Score { get; set; }
         public List<Location> Locations { get; set; }
         public List<Skill> Skills { get; set; }
     }

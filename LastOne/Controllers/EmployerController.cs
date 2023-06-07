@@ -27,7 +27,7 @@ namespace LastOne.Controllers
                 var employees = GetAllEmployees();
 
                 
-                var scoredEmployees = ScoreEmployers(employees, employer);
+                var scoredEmployees = ScoreEmployees(employees, employer);
 
                
                 var matches = NrmpMatch(scoredEmployees, employer.Id);
@@ -78,17 +78,17 @@ namespace LastOne.Controllers
             }
         }
 
-        private List<Employer> ScoreEmployers(List<Employer> employees, Employer employer)
+        private List<Employee> ScoreEmployees(List<Employee> employees, Employer employer)
         {
-            var scoredEmployers = new List<Employer>();
+            var scoredEmployees = new List<Employee>();
 
             foreach (var employee in employees)
             {
                 var score = 0;
 
                 
-                var employerLocations = GetEmployerLocations(employee.Id);
-                foreach (var location in employerLocations)
+                var employeeLocations = GetEmployeeLocations(employee.Id);
+                foreach (var location in employeeLocations)
                 {
                     if (employer.Locations.Contains(location))
                     {
@@ -97,7 +97,7 @@ namespace LastOne.Controllers
                 }
 
                 
-                var employeeSkills = GetEmployerSkills(employee.Id);
+                var employeeSkills = GetEmployeeSkills(employee.Id);
                 foreach (var skill in employeeSkills)
                 {
                     if (employer.RequiredSkills.Contains(skill))
@@ -107,25 +107,25 @@ namespace LastOne.Controllers
                 }
 
                 
-                if (employer.Availability == employer.Availability)
+                if (employer.Availability == employee.Availability)
                 {
                     score++;
                 }
 
 
                 
-                var scoredEmployer = new Employer
+                var scoredEmployee = new Employee
                 {
                     Id = employer.Id,
                     Score = score
                 };
-                scoredEmployers.Add(scoredEmployer);
+                scoredEmployees.Add(scoredEmployee);
             }
 
-            return scoredEmployers;
+            return scoredEmployees;
         }
 
-        private List<Skill> GetEmployerSkills(int employerId)
+        private List<Skill> GetEmployeeSkills(int employeeId)
         {
             string sqlDataSource = WebConfigurationManager.ConnectionStrings["DBConnectionString"].ConnectionString;
 
@@ -133,10 +133,10 @@ namespace LastOne.Controllers
             {
                 var skills = new List<Skill>();
 
-                var query = "SELECT s.name,s.skill_id FROM Skills s JOIN EmployerSkills es ON s.skill_id = es.skill_id WHERE es.employer_id = @EmployerId";
+                var query = "SELECT s.name,s.skill_id FROM Skills s JOIN EmployeeSkills es ON s.skill_id = es.skill_id WHERE es.employee_id = @EmployeeId";
                 using (var command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@EmployerId", employerId);
+                    command.Parameters.AddWithValue("@EmployeeId", employeeId);
                     connection.Open();
                     var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -156,7 +156,7 @@ namespace LastOne.Controllers
             }
         }
 
-        private List<Location> GetEmployerLocations(int employerId)
+        private List<Location> GetEmployeeLocations(int employeeId)
         {
             string sqlDataSource = WebConfigurationManager.ConnectionStrings["DBConnectionString"].ConnectionString;
 
@@ -164,10 +164,10 @@ namespace LastOne.Controllers
             {
                 var locations = new List<Location>();
 
-                var query = "SELECT l.name FROM Locations l JOIN EmployerLocations el ON l.location_id = el.location_id WHERE el.employer_id = @EmployerId";
+                var query = "SELECT l.name FROM Locations l JOIN EmployeeLocations el ON l.location_id = el.location_id WHERE el.employee_id = @EmployeeId";
                 using (var command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@EmployerId", employerId);
+                    command.Parameters.AddWithValue("@EmployeeId", employeeId);
                     connection.Open();
                     var reader = command.ExecuteReader();
                     while (reader.Read())
